@@ -1,6 +1,6 @@
 # Studenten in ihrem natürlichen Lebensraum:
 <p align="center">
-  <img width="500" alt="WO TUT WANN TUT WIE TUT WARUM TUT" src="img/WANNWIEDERTUT.png">
+  <img width="500" alt="WO TUT WANN TUT WIE TUT WARUM TUT" src="img/WANNWIEDERTUT.jpg">
 </p>
 
 ### Haben Sie genug davon, vergessliche Studenten manuell mit Timestamps des nächsten Tutoriums zu versorgen?
