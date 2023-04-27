@@ -15,6 +15,14 @@ intents.message_content = True
 intents.presences = True
 bot = commands.Bot(command_prefix="~", intents=intents, application_id=config['app_id'])
 
+tut_wann = ["wann tut", "tut wann", "wann wieder tut", "tut wieder wann"]
+
+def is_tut_msg(message):
+    for msg in tut_wann:
+        if msg in message.content.lower():
+            return True
+    return False
+
 @bot.event
 async def on_ready():
     activity = discord.Activity(type=discord.ActivityType.competing, name="LA Klausur")
@@ -28,7 +36,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == bot.user:
         return
-    if "tut wann" in message.content.lower() or "wann tut" in message.content.lower():
+    if is_tut_msg(message):
         tut = get_next_tut()
         await message.channel.send(f"<t:{int(tut[0])}:R> ~ <t:{int(tut[1])}:R>")
 
