@@ -1,2 +1,3 @@
 secrets.cfg
 test.*
+__pycache__
