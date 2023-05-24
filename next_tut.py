@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 
 
-def get_times(start_date, end_date, except_dates):
+def get_times(start_date : datetime, end_date, except_dates):
     week = timedelta(weeks=1)
 
     times = []
     current = start_date
     while current <= end_date:
-        if current not in except_dates:
+        if current.date() not in except_dates:
             times.append(current)
         current += week
     return times
@@ -30,7 +30,7 @@ def get_next_tut():
     end_date = datetime.strptime("20230726", date_format)
 
     except_dates_str = ["20230531"]
-    except_dates = [datetime.strptime(x, date_format) for x in except_dates_str]
+    except_dates = [datetime.strptime(x, date_format).date() for x in except_dates_str]
 
     start_time = datetime.strptime("11:30", time_format)
     end_time = datetime.strptime("13:00", time_format)
