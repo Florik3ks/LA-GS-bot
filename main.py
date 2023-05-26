@@ -47,7 +47,7 @@ async def on_message(message):
     if message.author == bot.user:
         return
     for key in messages.keys():
-        if is_tut_msg(message, key.split()):
+        if is_tut_msg(message, [key] + ["tut"]):
             result = random.choice(messages[key])
             if type(result) == str:
                 await message.channel.send(result)
