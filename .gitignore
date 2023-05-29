@@ -1,3 +1,4 @@
 secrets.cfg
 test.*
 __pycache__
+data.json
