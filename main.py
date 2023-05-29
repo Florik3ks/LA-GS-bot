@@ -73,10 +73,10 @@ async def send_to_channel(file, date, ver=1):
     await channel.send(f"Neues Übungsblatt: ``{file}``, Abgabe am {date}", file=f)
 
 
-@tasks.loop(minutes=15)
+@tasks.loop(minutes=20)
 async def check_assignments():
     # load files (https://github.com/Garmelon/PFERD)
-    os.popen("pferd-windows.exe").read()
+    os.popen("pferd").read()
     change = False
     with open("./data.json", "r") as f:
         data = json.load(f)
