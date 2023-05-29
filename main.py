@@ -19,8 +19,7 @@ intents = discord.Intents.default()
 intents.messages = True
 intents.message_content = True
 intents.presences = True
-bot = commands.Bot(command_prefix="~", intents=intents,
-                   application_id=config['app_id'])
+bot = commands.Bot(command_prefix="~", intents=intents, application_id=config['app_id'])
 
 messages = OrderedDict({
     "wann": ["An einem elitären Zeitpunkt", "¯\\_(ツ)_/¯"] + [lambda: f"<t:{int(get_next_tut()[0])}:R> ~ <t:{int(get_next_tut()[1])}:R>"] * 3,
@@ -73,7 +72,7 @@ async def send_to_channel(file, date, ver=1):
     await channel.send(f"Neues Übungsblatt: ``{file}``, Abgabe am {date}", file=f)
 
 
-@tasks.loop(minutes=20)
+@tasks.loop(hours=1)
 async def check_assignments():
     # load files (https://github.com/Garmelon/PFERD)
     os.popen("pferd").read()
@@ -92,8 +91,7 @@ async def check_assignments():
                 date = get_due_date(path + file)
                 with open(path + file, "rb") as f:
                     filehash = hashlib.sha1(f.read()).hexdigest()
-                data["assignments"][file] = {
-                    "ver": 1, "last_change": datetime.now().timestamp(), "hash": filehash}
+                data["assignments"][file] = {"ver": 1, "last_change": datetime.now().timestamp(), "hash": filehash}
                 await send_to_channel(file, date)
                 change = True
             else:
