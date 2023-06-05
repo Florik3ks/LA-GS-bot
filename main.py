@@ -69,6 +69,7 @@ async def send_to_channel(file, date, ver=1):
     f = discord.File(config["assignment_path"] + file)
     if ver > 1:
         await channel.send(f"``{file}`` wurde aktualisiert. Version: ``{ver}``, Abgabedatum {date}", file=f)
+        return
     await channel.send(f"Neues Übungsblatt: ``{file}``, Abgabe am {date}", file=f)
 
 
