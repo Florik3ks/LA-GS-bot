@@ -80,7 +80,8 @@ async def check_files():
         data = json.load(f)
 
     # iterate over pdf files in assignment folder
-    for _, _, files in os.walk(config['assignment_path']):
+    path = config["assignment_path"]
+    for _, _, files in os.walk(path):
         for file in files:
             if not file.endswith(".pdf"):
                 continue
