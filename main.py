@@ -33,6 +33,8 @@ messages = OrderedDict({
     "wo": ["Mathebau", "20.30 SR 3.061", r"https://www.kit.edu/campusplan/?id=20%2E30&label=20%2E30+SR+%2D1%2E011+%28UG%29+%E2%80%93+Tutorien+Lineare+Algebra+2+f%C3%BCr+Informatik+und+Mathematik"],
 })
 
+assignment_added = "Neues Übungsblatt: ``{file}``, Abgabe am  {date}"
+assignment_updated = "``{file}`` wurde aktualisiert. Version: ``{version}``, Abgabedatum {date}"
 
 def is_tut_msg(message, keywords):
     for key in keywords:
@@ -46,7 +48,7 @@ async def on_ready():
     activity = discord.Activity(
         type=discord.ActivityType.competing, name="LA Klausur")
     await bot.change_presence(activity=activity, status=discord.enums.Status.online)
-    check_assignments.start()
+    check_files.start()
     print("ready~")
 
 
@@ -65,17 +67,14 @@ async def on_message(message):
                 return
 
 
-async def send_to_channel(file, date, ver=1):
+async def send_to_channel(file, message):
     channel = bot.get_channel(int(config["update_channel_id"]))
     f = discord.File(config["assignment_path"] + file)
-    if ver > 1:
-        await channel.send(f"``{file}`` wurde aktualisiert. Version: ``{ver}``, Abgabedatum {date}", file=f)
-        return
-    await channel.send(f"Neues Übungsblatt: ``{file}``, Abgabe am {date}", file=f)
+    await channel.send(message, file=f)
 
 
 @tasks.loop(hours=1)
-async def check_assignments():
+async def check_files():
     change = False
     with open("./data.json", "r") as f:
         data = json.load(f)
@@ -92,10 +91,10 @@ async def check_assignments():
                 with open(path + file, "rb") as f:
                     filehash = hashlib.sha1(f.read()).hexdigest()
                 data["assignments"][file] = {"ver": 1, "last_change": datetime.now().timestamp(), "hash": filehash}
-                await send_to_channel(file, date)
+                await send_to_channel(file, assignment_added.format(file=file, date=date))
                 change = True
             else:
-                # # check if file hash has changed
+                # check if file hash has changed
                 with open(path + file, "rb") as f:
                     filehash = hashlib.sha1(f.read()).hexdigest()
 
@@ -104,9 +103,25 @@ async def check_assignments():
                     data["assignments"][file]["ver"] += 1
                     data["assignments"][file]["last_change"] = datetime.now().timestamp()
                     data["assignments"][file]["hash"] = filehash
-                    await send_to_channel(file, date, data["assignments"][file]["ver"])
+                    message = assignment_updated.format(file=file, date=date, version=data["assignments"][file]["ver"])
+                    await send_to_channel(file, message)
                     change = True
 
+
+        for _, _, files in os.walk(path):
+            for file in files:
+                # check if file hash has changed
+                with open(path + file, "rb") as f:
+                    filehash = hashlib.sha1(f.read()).hexdigest()
+
+                if filehash != data["script"]["hash"]:
+                    data["script"]["ver"] += 1
+                    data["script"]["last_change"] = datetime.now().timestamp()
+                    data["script"]["hash"] = filehash
+                    message = f"Neue Version des Skripts: ``V{data['script']['ver']}``"
+                    await send_to_channel(file, message)
+                    change = True
+                    
     # update data file
     if change:
         with open("./data.json", "w") as f:
@@ -117,6 +132,14 @@ def setup():
     if not os.path.exists("./data.json"):
         with open("./data.json", "w") as f:
             f.write('{"assignments": {}}')
+    # create script key if it does not exist
+    with open("./data.json", "r") as f:
+        data = json.load(f)
+        if "script" not in data.keys():
+            data["script"] = {"ver": 0, "last_change": datetime.now().timestamp(), "hash": ""}
+            with open("./data.json", "w") as f:
+                json.dump(data, f)
+        
 
 
 async def main():
