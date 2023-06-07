@@ -79,9 +79,8 @@ async def check_files():
     with open("./data.json", "r") as f:
         data = json.load(f)
 
-    path = config['assignment_path']
     # iterate over pdf files in assignment folder
-    for _, _, files in os.walk(path):
+    for _, _, files in os.walk(config['assignment_path']):
         for file in files:
             if not file.endswith(".pdf"):
                 continue
@@ -108,7 +107,7 @@ async def check_files():
                     change = True
 
 
-        for _, _, files in os.walk(path):
+        for _, _, files in os.walk(config["script_path"]):
             for file in files:
                 # check if file hash has changed
                 with open(path + file, "rb") as f:
