@@ -5,10 +5,10 @@ import asyncio
 import discord
 import hashlib
 import configparser
+from datetime import datetime
 from next_tut import get_next_tut
 from collections import OrderedDict
 from discord.ext import commands, tasks
-from datetime import datetime, timedelta
 from get_assignment_due_date import get_due_date
 
 config = configparser.ConfigParser()
@@ -35,6 +35,7 @@ messages = OrderedDict({
 
 assignment_added = "Neues Übungsblatt: ``{file}``, Abgabe am  {date}"
 assignment_updated = "``{file}`` wurde aktualisiert. Version: ``{version}``, Abgabedatum {date}"
+day_seconds = 60 * 60 * 24
 
 def is_tut_msg(message, keywords):
     for key in keywords:
@@ -67,9 +68,9 @@ async def on_message(message):
                 return
 
 
-async def send_to_channel(file, message):
+async def send_to_channel(path, file, message):
     channel = bot.get_channel(int(config["update_channel_id"]))
-    f = discord.File(config["assignment_path"] + file)
+    f = discord.File(path + file)
     await channel.send(message, file=f)
 
 
@@ -91,7 +92,7 @@ async def check_files():
                 with open(path + file, "rb") as f:
                     filehash = hashlib.sha1(f.read()).hexdigest()
                 data["assignments"][file] = {"ver": 1, "last_change": datetime.now().timestamp(), "hash": filehash}
-                await send_to_channel(file, assignment_added.format(file=file, date=date))
+                await send_to_channel(path, file, assignment_added.format(file=file, date=date))
                 change = True
             else:
                 # check if file hash has changed
@@ -104,7 +105,7 @@ async def check_files():
                     data["assignments"][file]["last_change"] = datetime.now().timestamp()
                     data["assignments"][file]["hash"] = filehash
                     message = assignment_updated.format(file=file, date=date, version=data["assignments"][file]["ver"])
-                    await send_to_channel(file, message)
+                    await send_to_channel(path, file, message)
                     change = True
 
     # check script
@@ -120,11 +121,11 @@ async def check_files():
                 data["script"]["last_change"] = datetime.now().timestamp()
                 data["script"]["hash"] = filehash
                 
-                days = int(datetime.now().timestamp() - last_change) / 60 * 60 * 24
-                message = f"Neue Version des Skripts: ``V{data['script']['ver']}`` (Tage seit letzter Änderung: {days})"
-                await send_to_channel(file, message)
+                delta = int(datetime.now().timestamp() - last_change)
+                days = round(delta / day_seconds, 2)
+                message = f"Neue Version des Skripts: ``V{data['script']['ver']}`` ({days} Tage seit letzter Änderung)"
+                await send_to_channel(path, file, message)
                 change = True
-                    
     # update data file
     if change:
         with open("./data.json", "w") as f:
