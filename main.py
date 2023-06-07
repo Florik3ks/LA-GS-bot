@@ -125,7 +125,7 @@ async def check_files():
     # update data file
     if change:
         with open("./data.json", "w") as f:
-            json.dump(data, f)
+            json.dump(data, f, indent=4)
 
 
 def setup():
@@ -138,7 +138,7 @@ def setup():
         if "script" not in data.keys():
             data["script"] = {"ver": 0, "last_change": datetime.now().timestamp(), "hash": ""}
             with open("./data.json", "w") as f:
-                json.dump(data, f)
+                json.dump(data, f, indent=4)
         
 
 
