@@ -24,7 +24,7 @@ bot = commands.Bot(command_prefix="~", intents=intents, application_id=config['a
 messages = OrderedDict({
     "wann": ["An einem elitären Zeitpunkt", "¯\\_(ツ)_/¯"] + [lambda: f"<t:{int(get_next_tut()[0])}:R> ~ <t:{int(get_next_tut()[1])}:R>"] * 3,
     "warum": ["Warum nicht?", "trivial. ■"],
-    "wogegen konvergiert": ["???"],
+    "wogegen konvergiert": ["???", "Übungsschein", "hoffentlich bestandene LA Klausur"],
     "wofür": ["Für Kühnlein!", "Mathebau"],
     "worüber" : ["glücklicherweise _nicht_ MS Teams", "vermutlich über 20.30 SR 2.061 (noch nicht bewiesen)"],
     "wer": ["Johannes, unser Herr und Meister", "Der Zirkel der LA-Lernenden"],
