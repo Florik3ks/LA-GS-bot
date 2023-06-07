@@ -5,10 +5,10 @@ import asyncio
 import discord
 import hashlib
 import configparser
-from datetime import datetime
 from next_tut import get_next_tut
 from collections import OrderedDict
 from discord.ext import commands, tasks
+from datetime import datetime, timedelta
 from get_assignment_due_date import get_due_date
 
 config = configparser.ConfigParser()
@@ -107,20 +107,23 @@ async def check_files():
                     await send_to_channel(file, message)
                     change = True
 
-
-        for _, _, files in os.walk(config["script_path"]):
-            for file in files:
-                # check if file hash has changed
-                with open(path + file, "rb") as f:
-                    filehash = hashlib.sha1(f.read()).hexdigest()
-
-                if filehash != data["script"]["hash"]:
-                    data["script"]["ver"] += 1
-                    data["script"]["last_change"] = datetime.now().timestamp()
-                    data["script"]["hash"] = filehash
-                    message = f"Neue Version des Skripts: ``V{data['script']['ver']}``"
-                    await send_to_channel(file, message)
-                    change = True
+    # check script
+    path = config["script_path"]
+    for _, _, files in os.walk(path):
+        for file in files:
+            # check if file hash has changed
+            with open(path + file, "rb") as f:
+                filehash = hashlib.sha1(f.read()).hexdigest()
+            if filehash != data["script"]["hash"]:
+                last_change= data["script"]["last_change"]
+                data["script"]["ver"] += 1
+                data["script"]["last_change"] = datetime.now().timestamp()
+                data["script"]["hash"] = filehash
+                
+                days = int(datetime.now().timestamp() - last_change) / 60 * 60 * 24
+                message = f"Neue Version des Skripts: ``V{data['script']['ver']}`` (Tage seit letzter Änderung: {days})"
+                await send_to_channel(file, message)
+                change = True
                     
     # update data file
     if change:
