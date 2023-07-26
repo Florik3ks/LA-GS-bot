@@ -1,12 +1,11 @@
 from datetime import datetime, timedelta
 
-
 def get_times(start_date : datetime, end_date, except_dates):
     week = timedelta(weeks=1)
 
     times = []
     current = start_date
-    while current <= end_date:
+    while current.date() <= end_date.date():
         if current.date() not in except_dates:
             times.append(current)
         current += week
@@ -17,7 +16,7 @@ def get_next_time(current, dates):
     for date in dates:
         if date > current:
             return date
-    return datetime.fromtimestamp(0)
+    return None
 
 
 
@@ -40,10 +39,23 @@ def get_next_tut():
     times = get_times(start_date, end_date, except_dates)
 
     now = datetime.now()    
+    
     next_time = get_next_time(now, times)
+    if next_time == None:
+        return None
+
     other_time = get_next_time(now - timedelta(minutes=offset_minutes), times)
+
 
     if next_time != other_time:
         return [next_time.timestamp(), (other_time + timedelta(minutes=offset_minutes)).timestamp()]    
-    
     return [next_time.timestamp(), (next_time + timedelta(minutes=offset_minutes)).timestamp()]
+        
+def get_next_tut_message():
+    timestamp_str = "<t:{0}:R> ~ <t:{1}:R>"
+    next_tut = get_next_tut()
+    
+    if next_tut == None:
+        return ":("
+    
+    return timestamp_str.format(int(next_tut[0]), int(next_tut[1]))

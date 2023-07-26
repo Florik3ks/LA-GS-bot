@@ -6,7 +6,7 @@ import discord
 import hashlib
 import configparser
 from datetime import datetime
-from next_tut import get_next_tut
+from next_tut import get_next_tut_message
 from collections import OrderedDict
 from discord.ext import commands, tasks
 from get_assignment_due_date import get_due_date
@@ -22,7 +22,7 @@ intents.presences = True
 bot = commands.Bot(command_prefix="~", intents=intents, application_id=config['app_id'])
 
 messages = OrderedDict({
-    "wann": ["An einem elitären Zeitpunkt", "¯\\_(ツ)_/¯"] + [lambda: f"<t:{int(get_next_tut()[0])}:R> ~ <t:{int(get_next_tut()[1])}:R>"] * 3,
+    "wann": ["An einem elitären Zeitpunkt", "¯\\_(ツ)_/¯"] + [lambda: str(get_next_tut_message())] * 5,
     "warum": ["Warum nicht?", "trivial. ■"],
     "wogegen konvergiert": ["???", "Übungsschein", "hoffentlich bestandene LA Klausur"],
     "wofür": ["Für Kühnlein!", "Mathebau"],
@@ -64,7 +64,8 @@ async def on_message(message):
                 await message.channel.send(result)
                 return
             else:
-                await message.channel.send(result())
+                msg = result()
+                await message.channel.send(msg)
                 return
 
 
